@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/nagarajendradronadula/Desktop/PDF Bot/venv-311/bin/python3.11" "$0" "$@"
-' '''
+#!/Users/nagarajendradronadula/Desktop/PDF-UTILITY-BOT/venv-311/bin/python3.11
 # -*- coding: utf-8 -*-
 import re
 import sys
