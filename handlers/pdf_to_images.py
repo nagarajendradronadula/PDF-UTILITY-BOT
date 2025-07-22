@@ -5,6 +5,7 @@ from telegram.ext import ContextTypes
 from pdf2image import convert_from_path
 
 TEMP_DIR = "temp_files"
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 async def handle_pdf_to_images(message, context: ContextTypes.DEFAULT_TYPE):
     await message.reply_text("🖼️ Please upload the PDF file you want to convert into images.")
@@ -23,7 +24,9 @@ async def receive_pdf_for_images(update: Update, context: ContextTypes.DEFAULT_T
     await update.message.reply_text("📥 PDF received for conversion to images. Processing now...")
 
     try:
-        images = convert_from_path(pdf_path)
+        print(f"[INFO] Starting conversion of {pdf_path}")
+        images = convert_from_path(pdf_path, dpi=100)
+        print(f"[INFO] Conversion successful, {len(images)} pages converted.")
         if not images:
             await update.message.reply_text("⚠️ No pages found in the PDF.")
             return
@@ -66,8 +69,10 @@ async def receive_pdf_for_images(update: Update, context: ContextTypes.DEFAULT_T
         if "unable to get page count" in error_message or "syntax error" in error_message:
             await update.message.reply_text("⚠️ The PDF appears to be corrupted or not readable. Please try a different file.")
         else:
+            import traceback
             await update.message.reply_text("❌ An internal error occurred while converting the PDF to images.")
             print(f"[ERROR] PDF to image conversion failed: {e}")
+            traceback.print_exc()
         await update.message.reply_text("🔁 You can type /start to return to the main menu.")
 
     finally:
