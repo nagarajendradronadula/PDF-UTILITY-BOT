@@ -4,6 +4,7 @@ from handlers.ppt_to_pdf import handle_ppt_to_pdf, receive_ppt
 from handlers.extract_text import handle_extract_text, receive_pdf_for_text
 from handlers.pdf_to_images import handle_pdf_to_images, receive_pdf_for_images
 from handlers.merge_pdf import handle_merge_pdf, receive_pdf, complete_merge
+from handlers.video_to_gif import handle_video_to_gif, receive_video, process_video_to_gif
 import os
 from telegram import Update, CallbackQuery
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters
@@ -24,7 +25,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("📉 Compress Image", callback_data="compress_image")],
         [InlineKeyboardButton("📑 PPT to PDF", callback_data="ppt_to_pdf")],
         [InlineKeyboardButton("🔍 Extract Text from PDF", callback_data="extract_text")],
-        [InlineKeyboardButton("🖼️ PDF to Images", callback_data="pdf_to_images")]
+        [InlineKeyboardButton("🖼️ PDF to Images", callback_data="pdf_to_images")],
+        [InlineKeyboardButton("🎬 Video to GIF", callback_data="video_to_gif")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
@@ -36,6 +38,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "• /ppt_to_pdf – Convert PPTX to PDF\n"
         "• /extract_text – Extract text from PDF\n"
         "• /pdf_to_images – Convert PDF pages to images\n"
+        "• /video_to_gif – Convert video to shaped GIF\n"
+        "• /circle_gif – Convert video to circular GIF\n"
+        "• /square_gif – Convert video to square GIF\n"
+        "• /rectangle_gif – Convert video to rectangular GIF\n"
+        "• /triangle_gif – Convert video to triangular GIF\n"
         "• /done – Finish the current merge process\n"
         "• /image_done – Finish the current image to PDF process\n\n"
         "👇 Or click a button below to get started:",
@@ -68,6 +75,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await handle_extract_text(query.message, context)
     elif data == "pdf_to_images":
         await handle_pdf_to_images(query.message, context)
+    elif data == "video_to_gif":
+        await handle_video_to_gif(query.message, context)
+    elif data.startswith("gif_"):
+        shape = data.replace("gif_", "")
+        await process_video_to_gif(query, context, shape)
+        return
     else:
         await query.message.reply_text("❗Unknown option selected.")
 
@@ -91,6 +104,13 @@ async def route_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("⚠️ Please choose a PDF-related feature from /start before uploading a PDF.")
 
+async def route_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    feature = context.user_data.get("active_feature")
+    if feature == "video_to_gif":
+        await receive_video(update, context)
+    else:
+        await update.message.reply_text("⚠️ Please choose 'Video to GIF' from /start before uploading a video.")
+
 if __name__ == "__main__":
     app = ApplicationBuilder().token(os.getenv("BOT_TOKEN")).build()
     app.add_handler(CommandHandler("start", start))
@@ -109,6 +129,15 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("ppt_to_pdf", handle_ppt_to_pdf))
     app.add_handler(CommandHandler("extract_text", handle_extract_text))
     app.add_handler(CommandHandler("pdf_to_images", handle_pdf_to_images))
+    app.add_handler(CommandHandler("video_to_gif", handle_video_to_gif))
+    app.add_handler(MessageHandler(filters.VIDEO | filters.Document.VIDEO, route_video))
+    
+    # Add individual shape command handlers
+    from functools import partial
+    app.add_handler(CommandHandler("circle_gif", lambda u, c: handle_video_to_gif(u, c)))
+    app.add_handler(CommandHandler("square_gif", lambda u, c: handle_video_to_gif(u, c)))
+    app.add_handler(CommandHandler("rectangle_gif", lambda u, c: handle_video_to_gif(u, c)))
+    app.add_handler(CommandHandler("triangle_gif", lambda u, c: handle_video_to_gif(u, c)))
 
     print("🚀 Bot is running...")
     app.run_polling()
