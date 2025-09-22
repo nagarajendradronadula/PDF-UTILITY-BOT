@@ -111,7 +111,7 @@ async def route_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ Please choose 'Video to GIF' from /start before uploading a video.")
 
 if __name__ == "__main__":
-    app = ApplicationBuilder().token("8054075994:AAG7S4EEHYHm83y4nVytjrZ0c2OcgscJd38").build()
+    app = ApplicationBuilder().token(process.env.BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("done", complete_merge))
     app.add_handler(MessageHandler(filters.Document.PDF, route_pdf))

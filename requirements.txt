@@ -1,9 +1,19 @@
+# Telegram Bot Framework
 python-telegram-bot==20.7
-PyPDF2==3.0.1
-Pillow==10.2.0
+
+# PDF Manipulation
+pypdf==4.2.0 # Successor to the deprecated PyPDF2
+PyMuPDF==1.23.3 # Also known as Fitz, for high-performance PDF tasks
+fpdf2==2.7.8 # Successor to the deprecated fpdf, for PDF generation
+pdf2image==1.17.0 # Converts PDF to images (requires poppler system dependency)
+
+# Image Processing
+Pillow>=10.3.0
+
+# Other File Formats
 python-pptx==0.6.23
-fpdf==1.7.2
-PyMuPDF==1.23.3
-pdf2image==1.17.0
-cloudconvert
-moviepy
+
+# Miscellaneous
+cloudconvert==2.9.0
+moviepy==1.0.3
+python-dotenv==1.0.1
